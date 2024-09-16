@@ -21,12 +21,12 @@ jobs:
       - name: 'Set up Node.js'
         uses: actions/setup-node@v3
         with:
-          node-version: '16.x' # Node.jsバージョンの指定。必要に応じてバージョンを変更可能。
+          node-version: '16.x'  # 必要に応じてNode.jsバージョンを指定
 
       # 3. Install Oryx
       - name: 'Install Oryx'
         run: |
-          curl -L https://github.com/microsoft/Oryx/releases/download/v0.2.20240424.1/oryx-linux-x64.tar.gz -o oryx-linux-x64.tar.gz
+          curl -L https://github.com/microsoft/Oryx/releases/download/20230310.2/oryx-linux-x64.tar.gz -o oryx-linux-x64.tar.gz
           tar -xvzf oryx-linux-x64.tar.gz
           sudo mv oryx /usr/local/bin/
 
@@ -39,6 +39,6 @@ jobs:
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'tech0-gen-7-step4-prelesson-1' # Azure Web Appの名前
-          slot-name: 'Production'  # 必要に応じて、デプロイスロットを指定可能
+          app-name: 'tech0-gen-7-step4-prelesson-1'  # Azure Web Appの名前
+          slot-name: 'Production'  # 必要に応じてデプロイスロットを指定
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_30DF7C15451A4F7C8D10250582404692 }}  # Azureの公開プロファイルをGitHub Secretsで指定
