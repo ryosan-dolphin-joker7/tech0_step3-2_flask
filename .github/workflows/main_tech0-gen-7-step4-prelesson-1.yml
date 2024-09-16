@@ -1,6 +1,6 @@
-# GitHub Actions for deploying a Python app to Azure Web App using Oryx
+# GitHub Actions for deploying a Python app to Azure Web App using Oryx (automatic in Azure)
 
-name: Build and Deploy Python App to Azure Web App using Oryx
+name: Build and Deploy Python App to Azure Web App
 
 on:
   push:
@@ -17,25 +17,20 @@ jobs:
       - name: 'Checkout GitHub repository'
         uses: actions/checkout@v4
 
-      # 2. Set up Node.js (Oryx requires Node.js to function)
-      - name: 'Set up Node.js'
-        uses: actions/setup-node@v3
+      # 2. Set up Python environment
+      - name: Set up Python version
+        uses: actions/setup-python@v5
         with:
-          node-version: '16.x'  # 必要に応じてNode.jsバージョンを指定
+          python-version: '3.11'
 
-      # 3. Install Oryx
-      - name: 'Install Oryx'
+      # 3. Install dependencies (if applicable)
+      - name: Install dependencies
         run: |
-          curl -L https://github.com/microsoft/Oryx/releases/download/20230310.2/oryx-linux-x64.tar.gz -o oryx-linux-x64.tar.gz
-          tar -xvzf oryx-linux-x64.tar.gz
-          sudo mv oryx /usr/local/bin/
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
 
-      # 4. Run Oryx Build
-      - name: 'Run Oryx Build'
-        run: |
-          oryx build . --platform python --platform-version 3.11
-
-      # 5. Azureへのデプロイ
+      # 4. Azureへのデプロイ
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         with:
