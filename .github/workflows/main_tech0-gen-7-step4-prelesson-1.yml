@@ -67,3 +67,6 @@ jobs:
           app-name: 'tech0-gen-7-step4-prelesson-1'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_30DF7C15451A4F7C8D10250582404692 }}
+          - name: Oryx Build
+  run: |
+    oryx build . --platform python --platform-version 3.11
