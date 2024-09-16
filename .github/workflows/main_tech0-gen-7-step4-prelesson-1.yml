@@ -1,8 +1,6 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
+# GitHub Actions for deploying a Python app to Azure Web App using Oryx
 
-name: Build and deploy Python app to Azure Web App - tech0-gen-7-step4-prelesson-1
+name: Build and Deploy Python App to Azure Web App using Oryx
 
 on:
   push:
@@ -11,58 +9,36 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_and_deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      # 1. GitHubリポジトリからコードをチェックアウト
+      - name: 'Checkout GitHub repository'
+        uses: actions/checkout@v4
 
-      - name: Set up Python version
-        uses: actions/setup-python@v5
+      # 2. Set up Node.js (Oryx requires Node.js to function)
+      - name: 'Set up Node.js'
+        uses: actions/setup-node@v3
         with:
-          python-version: '3.11'
+          node-version: '16.x' # Node.jsバージョンの指定。必要に応じてバージョンを変更可能。
 
-      - name: Create and start virtual environment
+      # 3. Install Oryx
+      - name: 'Install Oryx'
         run: |
-          python -m venv venv
-          source venv/bin/activate
-      
-      - name: Install dependencies
+          curl -L https://github.com/microsoft/Oryx/releases/download/v0.2.20240424.1/oryx-linux-x64.tar.gz -o oryx-linux-x64.tar.gz
+          tar -xvzf oryx-linux-x64.tar.gz
+          sudo mv oryx /usr/local/bin/
+
+      # 4. Run Oryx Build
+      - name: 'Run Oryx Build'
         run: |
-          source venv/bin/activate
-          pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+          oryx build . --platform python --platform-version 3.11
 
-      - name: Zip artifact for deployment
-        run: zip -r release.zip ./*
-
-      - name: Upload artifact for deployment jobs
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-app
-          path: release.zip
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: python-app
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
-
+      # 5. Azureへのデプロイ
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
-          app-name: 'tech0-gen-7-step4-prelesson-1'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_30DF7C15451A4F7C8D10250582404692 }}
+          app-name: 'tech0-gen-7-step4-prelesson-1' # Azure Web Appの名前
+          slot-name: 'Production'  # 必要に応じて、デプロイスロットを指定可能
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_30DF7C15451A4F7C8D10250582404692 }}  # Azureの公開プロファイルをGitHub Secretsで指定
